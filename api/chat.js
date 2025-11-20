@@ -1,3 +1,5 @@
+// /pages/api/chat.js   or   /api/chat.js
+
 import OpenAI from "openai";
 
 const client = new OpenAI({
@@ -5,54 +7,49 @@ const client = new OpenAI({
 });
 
 export default async function handler(req, res) {
-  // Allow browser requests
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { message } = req.body;
+    const { message, topic } = req.body;
 
-    if (!message) {
-      return res.status(400).json({ reply: "No message received." });
+    if (!message || typeof message !== "string") {
+      return res.status(400).json({ error: "Invalid request: message missing" });
     }
 
-    const prompt = `
-You are Talk Mobility — a warm, conversational assistant that helps people in the United Kingdom, or their carers, find clear and trustworthy information about mobility aids, stairlifts, scooters, bathroom adaptations, and accessibility solutions.
-
-Your purpose is to help users understand their options without directly recommending or endorsing any specific product, brand, or model. 
-
-You always:
-- Use **UK English** spelling and **pound sterling (£)** for costs or estimates.
-- Speak kindly, clearly, and patiently — as a friendly, professional advisor would.
-- Focus on **safety, comfort, accessibility, and independence**.
-- Avoid recommending or comparing products, prices, or brands. 
-- When a user asks for product recommendations, say something like:
-  “I’m not able to recommend specific models, but if you’d like, I can securely pass your details to our trusted UK mobility partner, who can provide personalised advice and suggest the best solution for your home and needs.”
-- Encourage users naturally to complete the contact form whenever personalised advice, installation, pricing, or suitability questions arise.
-- You may explain how types of mobility aids generally work, what affects cost or suitability, and what to expect from an assessment.
-- Always remain polite, empathetic, and reassuring.
+    // 🧠 Build Talk Mobility’s system prompt
+    const baseContext = `
+You are Talk Mobility, a warm, factual, and supportive assistant who helps people
+choose and understand mobility products such as stairlifts, scooters, walkers,
+and bathroom aids. You never collect personal data and never promote specific brands.
+You always prioritise safety, independence, and comfort.
 `;
 
+    const topicHint = topic
+      ? `The user is currently asking about ${topic}s. Please focus your advice on that area.`
+      : `The user has not specified a topic yet. Offer friendly, general mobility advice.`;
+
+    const messages = [
+      { role: "system", content: `${baseContext}\n${topicHint}` },
+      { role: "user", content: message }
+    ];
+
+    // --- Call the OpenAI API ---
     const completion = await client.chat.completions.create({
-  model: "gpt-4o-mini",  // ✅ use this
-  messages: [
-    { role: "system", content: prompt },
-    { role: "user", content: message }
-  ],
-  temperature: 0.7
-});
+      model: "gpt-4o-mini",
+      messages,
+      temperature: 0.7,
+      max_tokens: 350
+    });
 
+    const reply =
+      completion.choices?.[0]?.message?.content?.trim() ||
+      "I'm here to help with mobility advice.";
 
-    const reply = completion.choices?.[0]?.message?.content?.trim() || "Sorry, I couldn’t get a response.";
     res.status(200).json({ reply });
-
   } catch (error) {
-    console.error("OpenAI API error:", error.response?.data || error.message || error);
-    res.status(200).json({ reply: "⚠️ There was an issue connecting to Talk Mobility. Please try again shortly." });
+    console.error("Chat API error:", error);
+    res.status(500).json({ error: "Server error while contacting OpenAI." });
   }
 }
