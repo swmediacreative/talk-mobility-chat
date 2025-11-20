@@ -39,7 +39,7 @@ You always:
 `;
 
     const completion = await client.chat.completions.create({
-  model: "gpt-5-mini",  // ✅ use this
+  model: "gpt-4o-mini",  // ✅ use this
   messages: [
     { role: "system", content: prompt },
     { role: "user", content: message }
