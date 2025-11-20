@@ -39,13 +39,14 @@ You always:
 `;
 
     const completion = await client.chat.completions.create({
-      model: "gpt-5-turbo", // ✅ ensure GPT-5 model
-      messages: [
-        { role: "system", content: prompt },
-        { role: "user", content: message }
-      ],
-      temperature: 0.7
-    });
+  model: "gpt-5-chat-latest",  // ✅ use this
+  messages: [
+    { role: "system", content: prompt },
+    { role: "user", content: message }
+  ],
+  temperature: 0.7
+});
+
 
     const reply = completion.choices?.[0]?.message?.content?.trim() || "Sorry, I couldn’t get a response.";
     res.status(200).json({ reply });
