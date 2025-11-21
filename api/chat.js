@@ -1,3 +1,14 @@
+export default async function handler(req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "https://talkmobility.co.uk");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end(); // Handle preflight
+  }
+
+  // ...your existing chat logic...
+}
 // /pages/api/chat.js   or   /api/chat.js
 
 import OpenAI from "openai";
