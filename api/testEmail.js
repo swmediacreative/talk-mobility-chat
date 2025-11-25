@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
     // --- Send test email ---
     const result = await resend.emails.send({
-      from: 'Talk Mobility <onboarding@resend.dev>', // change later to your verified domain
+      from: 'Talk Mobility <noreply@talkmobility.co.uk>', // change later to your verified domain
       to: 'hello@talkmobility.co.uk',
       subject: '✅ Talk Mobility Test Email from Vercel',
       text: `This is a test email sent via your Talk Mobility Vercel backend at ${new Date().toISOString()}.`,
