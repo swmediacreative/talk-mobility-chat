@@ -4,6 +4,7 @@
   "main": "api/chat.js",
   "type": "module",
   "dependencies": {
-    "openai": "^4.0.0"
+    "openai": "^4.0.0",
+    "resend": "^3.2.0"
   }
 }
