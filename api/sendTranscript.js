@@ -48,7 +48,7 @@ export default async function handler(req, res) {
 
     // --- Send the email ---
     const result = await resend.emails.send({
-      from: 'Talk Mobility <onboarding@resend.dev>',
+      from: 'Talk Mobility <noreply@talkmobility.co.uk>',
       to: 'hello@talkmobility.co.uk',
       subject,
       text: textOut,
